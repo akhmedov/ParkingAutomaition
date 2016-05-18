@@ -3,15 +3,13 @@
 Recognition::Recognition(short unsigned threshs /*=200*/)
 {
 	this->conturThresh = threshs;
-	this->imgScale = 2;
 	this->clusteringAttemps = 5;
 	this->clusteringEps = 0.0001;
 	this->clusteringIterations = 1000;
 }
 
-cv::Mat Recognition::buildConturs(cv::Mat image)
+Conturs Recognition::buildConturs(cv::Mat image)
 {
-	cv::RNG rng(12345); // seed
 
 	cv::cvtColor( image, image, CV_BGR2GRAY );
 	cv::blur( image, image, cv::Size(3,3) );
@@ -24,16 +22,26 @@ cv::Mat Recognition::buildConturs(cv::Mat image)
 	cv::findContours( edges, contours, hierarchy, CV_RETR_TREE, 
 		CV_CHAIN_APPROX_SIMPLE, cv::Point(0, 0) );
 
-	cv::Mat drawing = cv::Mat::zeros( edges.size(), CV_8UC3 );
-	for( int i = 0; i< contours.size(); i++ )
-	{
-		cv::Scalar color = cv::Scalar( rng.uniform(0, 255), rng.uniform(0,255), 
-			rng.uniform(0,255) );
-		cv::drawContours( drawing, contours, i, color, 2, 8, hierarchy, 0, 
-			cv::Point() );
-	}
+	return Conturs(edges, hierarchy, contours);
+}
 
-	return drawing;
+Conturs Recognition::findColorBlot(cv::Mat img, cv::Vec3b color)
+{
+	// cv::Vec3b black = Vec3b(0, 0, 0);
+	cv::Scalar black(0,0,0);
+	cv::Vec3b wite = cv::Vec3b(255, 255, 255);
+	cv::Mat mask = cv::Mat(img.size(), img.type(), black);
+	for( int y = 0; y < img.rows; y++ )
+		for( int x = 0; x < img.cols; x++ )
+		{
+			if ( img.at<cv::Vec3b>(y,x)[0] == color[0] &&
+				img.at<cv::Vec3b>(y,x)[1] == color[1] &&
+				img.at<cv::Vec3b>(y,x)[2] == color[2]
+			) {
+				mask.at<cv::Vec3b>(y,x) = wite;
+			}
+		}
+	return this->buildConturs(mask);
 }
 
 cv::Mat Recognition::buildCluster(cv::Mat image)
@@ -69,16 +77,6 @@ cv::Mat Recognition::buildCluster(cv::Mat image)
 	return layer;
 }
 
-void Recognition::setImgScale(short unsigned val)
-{
-	this->imgScale = val;
-}
-
-short unsigned Recognition::getImgScale()
-{
-	return this->imgScale;
-}
-
 void Recognition::setClusteringAttemps(short unsigned val)
 {
 	this->clusteringAttemps = val;
@@ -107,11 +105,4 @@ void Recognition::setClusteringEps(double val)
 double Recognition::getClusteringEps()
 {
 	return this->clusteringEps;
-}
-
-cv::Mat minimize(cv::Mat src, int scale)
-{
-	cv::Mat res(src.size()/scale, src.type());
-	cv::resize(src, res, res.size(), cv::INTER_LINEAR);
-	return res;
 }
