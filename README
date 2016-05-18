@@ -1,0 +1,37 @@
+### Abstract ####################################################################
+ParcingAutomaition is a server application for parking monitoring systems.
+The server application contains IP camera interface and computer vision methods.
+The software is based on OpenCV solutions. MongoDB is used to store big data.
+Server configuration is accesseble throw text configuration file.
+
+### Build and run instraction ###################################################
+~/ProjDir $ make clean
+~/ProjDir $ make server
+~/ProjDir $ ./bin/parking ./parking.conf
+
+### System reqirements ##########################################################
+- 4x Intel Core i5
+- 4Gb DDR3 RAM 1600MHz
+
+### Software Dependency #########################################################
+- GNU/Linux OS is recomended
+- git, make, g++, OpenCV, MongoDB
+
+### List of Feachers (version 0.9) ##############################################
+- hardcoded camera-to-layout mapping
+- one camera support
+- 20 pixels per object resolution
+- real time object clustering with 1 sec lag
+- automation parking monitoring
+- alarm manager (for admin)
+- notification manager (for users)
+
+### Helpful shell commands for developers #######################################
+~/ProjDir $ make list 			// number of code lines and project tree
+
+### Environment instalation guide for Ubuntu 14.04 LTE amd64 ####################
+~ $ sudo apt-get install build-essential git
+~ $ sudo apt-get install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
+~ $ sudo apt-get install libswscale-dev libtbb2 libtbb-dev libjpeg-dev
+~ $ sudo apt-get install libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
+~ $ sudo apt-get install libopencv-dev
