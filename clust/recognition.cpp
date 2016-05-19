@@ -10,7 +10,6 @@ Recognition::Recognition(short unsigned threshs /*=200*/)
 
 Conturs Recognition::buildConturs(cv::Mat image)
 {
-
 	cv::cvtColor( image, image, CV_BGR2GRAY );
 	cv::blur( image, image, cv::Size(3,3) );
 	
@@ -27,7 +26,6 @@ Conturs Recognition::buildConturs(cv::Mat image)
 
 Conturs Recognition::findColorBlot(cv::Mat img, cv::Vec3b color)
 {
-	// cv::Vec3b black = Vec3b(0, 0, 0);
 	cv::Scalar black(0,0,0);
 	cv::Vec3b wite = cv::Vec3b(255, 255, 255);
 	cv::Mat mask = cv::Mat(img.size(), img.type(), black);

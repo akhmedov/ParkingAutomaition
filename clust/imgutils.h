@@ -1,4 +1,4 @@
-#pragma IMGUTILS_H
+#pragma once
 
 /********************************************************************
 *			Akhmedov Rolan -- rolan.kharkiv@gmail.com				*

@@ -2,17 +2,19 @@
 
 /********************************************************************
 *			Akhmedov Rolan -- rolan.kharkiv@gmail.com				*
-*					18 May 2016 -- version 0.9						*
+*					19 May 2016 -- version 0.9						*
 * 	CV approach is based on k-means clustering and ... conturing	*
 *		Open source lib is in use: OpenCV (GNU Licence GPLv2)		*
 ********************************************************************/
 
 enum SpotStatus {vacant, busy};
 
-class Camera {
+class Spot {
 public:
-	Conturs spotEntity;
 
 private:
-
+	
+	unsigned number;
+	bool trackable;
+	SpotStatus status;
 };

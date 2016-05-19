@@ -6,7 +6,7 @@ Server configuration is accesseble throw text configuration file.
 
 ### Build and run instraction ###################################################
 ~/ProjDir $ make clean
-~/ProjDir $ make server
+~/ProjDir $ make build
 ~/ProjDir $ ./bin/parking ./parking.conf
 
 ### System reqirements ##########################################################
