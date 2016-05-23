@@ -11,7 +11,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
-void updateSpotStatus(Camera *cam1, cv::Mat ctrScreen)
+void hardcodeSpotStatus(Camera *cam1, cv::Mat ctrScreen)
 {
 	std::vector<unsigned> spots = cam1->getSpotNumbers();
 	std::cout << spots.size() << std::endl;
@@ -19,6 +19,18 @@ void updateSpotStatus(Camera *cam1, cv::Mat ctrScreen)
 	 	cam1->setSpotStatus(s, busy);
 	cam1->setSpotStatus(10, vacant);
 	cam1->setSpotStatus(14, vacant);
+}
+
+void updateSpotStatus(Camera &cam1, const cv::Mat &ctrScreen)
+{
+	for (auto spot : cam1.getSpotNumbers()) {
+		unsigned imgFill = ImgUtils::culcFill(ctrScreen, cam1.getSpotContour(spot));
+		unsigned deffaultFill = cam1.getDefaultFill(spot);
+		if (imgFill > deffaultFill)
+			cam1.setSpotStatus(spot, busy);
+		else
+			cam1.setSpotStatus(spot, vacant);
+	}
 }
 
 Camera hardcodedCamera(cv::Mat parkingMap)
@@ -32,6 +44,7 @@ Camera hardcodedCamera(cv::Mat parkingMap)
 	Conturs ctrSpot = core.findColorBlot(parkingMap, yellow);
 	for (int i = 0; i < ctrSpot.location.size(); i++) {
 		Spot sp((unsigned) i, ctrSpot.location[i], "Null");
+		sp.setDefaultFill(68012);
 		spotConfiguration.push_back(sp);
 	}
 
@@ -60,7 +73,8 @@ int main(int argc, char* argv[])
 	Conturs ctr = core.buildConturs(screen);
 	cv::Mat ctrScreen = ImgUtils::drawConturs(ctr);
 
-	updateSpotStatus(&cam1, ctrScreen);
+	// hardcodeSpotStatus(&cam1, ctrScreen);
+	updateSpotStatus(cam1, ctrScreen);
 	ImgUtils::drowSpotStatus(cam1, &screen);
 
 	cv::imshow( "Spots Status", screen );

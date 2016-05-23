@@ -28,10 +28,12 @@ struct Conturs {
 
 class ImgUtils {
 public:
+	static unsigned culcFill(const cv::Mat &image, const std::vector<cv::Point> &contur);
 	static cv::Mat minimize(cv::Mat src, int scale);
 	static void drowSpotStatus(Camera cam1, cv::Mat *screen, int markerSize = 20);
 	static cv::Point2f getCounturCenter(std::vector<cv::Point> countur);
 	static bool isPointInside(cv::Point2f dot, std::vector<cv::Point> countur);
+	unsigned culcFill(const cv::Mat &image, const Spot &spot);
 	// color can be any exapt black
 	static cv::Mat drawConturs(Conturs contours);
 	static cv::Mat drawConturs(Conturs contours, cv::Scalar color);

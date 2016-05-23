@@ -9,6 +9,18 @@ cv::Mat ImgUtils::minimize(cv::Mat src, int scale)
 	return res;
 }
 
+unsigned ImgUtils::culcFill(const cv::Mat &image, const std::vector<cv::Point> &contur)
+{
+	unsigned fill = 0;
+	for( int y = 0; y < image.rows; y++ )
+		for( int x = 0; x < image.cols; x++ )
+			if ( image.at<cv::Vec3b>(y,x)[0] != 0 ||
+				image.at<cv::Vec3b>(y,x)[1] != 0 ||
+				image.at<cv::Vec3b>(y,x)[2] != 0 ) 
+				fill++;
+	return fill;
+}
+
 cv::Mat ImgUtils::drawConturs(Conturs contours)
 {
 	cv::RNG rng(12345); // seed
@@ -37,7 +49,6 @@ cv::Mat ImgUtils::drawConturs(Conturs contours, cv::Scalar color )
 
 void ImgUtils::drowSpotStatus(Camera cam1, cv::Mat *screen, int markerSize)
 {
-	
 	cv::Point2f center;
 	SpotStatus stat;
 	std::vector<cv::Point> ctr;
@@ -55,15 +66,24 @@ void ImgUtils::drowSpotStatus(Camera cam1, cv::Mat *screen, int markerSize)
 				markerColor = CV_RGB(255,0,0);
 				break;
 			case unknown:
-				markerColor = CV_RGB(255,255,255);
+				markerColor = CV_RGB(230,230,230);
 				break;
 			default:
 				markerColor = CV_RGB(0,0,0);
 				break;
 		}
 		cv::circle(*screen, center, markerSize, markerColor, -1);
+		//add text
+			std::string text = std::to_string(num);
+			int thickness = 2;
+			double fontScale = 0.5;
+			cv::Scalar textColor = CV_RGB(0,0,0);
+			int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
+			int baseline = 0;
+			cv::Size font = cv::getTextSize(text, fontFace, fontScale, thickness, &baseline);
+			baseline += thickness;
+			putText(*screen, text, center-cv::Point2f(5,-6), fontFace, fontScale, cv::Scalar::all(0), thickness, 8);
 	}
-	
 }
 
 cv::Point2f ImgUtils::getCounturCenter(std::vector<cv::Point> countur)
@@ -76,8 +96,6 @@ cv::Point2f ImgUtils::getCounturCenter(std::vector<cv::Point> countur)
 
 bool ImgUtils::isPointInside(cv::Point2f dot, std::vector<cv::Point> countur)
 {
-	// http://stackoverflow.com/questions/6882222/use-cvpointpolygontest
-	// TODO: Not impplemented
 	double res = cv::pointPolygonTest(countur, dot, false);
 	// res = 1 or -1)
 	return (1 == (int) res);

@@ -24,6 +24,13 @@ SpotStatus Camera::getSpotStatus(unsigned spotNum)
 	return spot->getStatus();
 }
 
+unsigned Camera::getDefaultFill(unsigned spotNum)
+{
+	std::list<Spot>::iterator spot = spotEntity.begin();
+	std::advance(spot, spotNum);
+	return spot->getDefaultFill();
+}
+
 void Camera::setSpotStatus(unsigned spotNum, SpotStatus sts)
 {
 	std::list<Spot>::iterator spot = spotEntity.begin();
