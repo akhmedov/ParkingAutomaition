@@ -20,6 +20,8 @@ public:
 
 	std::vector<unsigned> getSpotNumbers();
 	SpotStatus getSpotStatus(unsigned spotNum);
+	std::vector<cv::Point> getSpotContour(unsigned spotNum);
+	void setSpotStatus(unsigned spotNum, SpotStatus sts);
 	// RoadStatus getRoadStatus(); TODO: not implemented
 	// getVideoStream(); TODO: not implemented
 	// getSpotStatusMask(); TODO: not implemented

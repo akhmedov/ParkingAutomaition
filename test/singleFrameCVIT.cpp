@@ -13,8 +13,12 @@
 
 void updateSpotStatus(Camera *cam1, cv::Mat ctrScreen)
 {
-	// TODO: not implemented
-	cam1->getSpotNumbers();
+	std::vector<unsigned> spots = cam1->getSpotNumbers();
+	std::cout << spots.size() << std::endl;
+	for (auto s : spots)
+	 	cam1->setSpotStatus(s, busy);
+	cam1->setSpotStatus(10, vacant);
+	cam1->setSpotStatus(14, vacant);
 }
 
 Camera hardcodedCamera(cv::Mat parkingMap)
@@ -57,7 +61,7 @@ int main(int argc, char* argv[])
 	cv::Mat ctrScreen = ImgUtils::drawConturs(ctr);
 
 	updateSpotStatus(&cam1, ctrScreen);
-	ImgUtils::drowSpotStatus(cam1, &screen); // TODO: not implemented
+	ImgUtils::drowSpotStatus(cam1, &screen);
 
 	cv::imshow( "Spots Status", screen );
 	cv::waitKey(0);

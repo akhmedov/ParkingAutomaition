@@ -13,13 +13,27 @@ std::vector<unsigned> Camera::getSpotNumbers()
 	std::vector<unsigned> nums;
 	std::list<Spot>::iterator spot;
 	for (spot = spotEntity.begin(); spot != spotEntity.end(); ++spot)
-		nums.push_back( (spot)->getNumber() );
+		nums.push_back( spot->getNumber() );
 	return nums;
 }
 
 SpotStatus Camera::getSpotStatus(unsigned spotNum)
 {
-	std::list<Spot>::iterator spot;
+	std::list<Spot>::iterator spot = spotEntity.begin();
 	std::advance(spot, spotNum);
 	return spot->getStatus();
+}
+
+void Camera::setSpotStatus(unsigned spotNum, SpotStatus sts)
+{
+	std::list<Spot>::iterator spot = spotEntity.begin();
+	std::advance(spot, spotNum);
+	spot->setStatus(sts);
+}
+
+std::vector<cv::Point> Camera::getSpotContour(unsigned spotNum)
+{
+	std::list<Spot>::iterator spot = spotEntity.begin();
+	std::advance(spot, spotNum);
+	return spot->getCountur();
 }

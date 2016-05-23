@@ -13,8 +13,8 @@
 int main(int argc, char* argv[])
 {
 	cv::Mat loadedImage = cv::imread(argv[1]);
-	cv::Mat scaledImage = ImgUtils::minimize(loadedImage, 2);
-	Recognition core = Recognition();
+	cv::Mat scaledImage = ImgUtils::minimize(loadedImage, 1);
+	Recognition core = Recognition(200);
 	cv::Mat clusteredImage = core.buildCluster(scaledImage);
 	// Conturs ctr = core.buildConturs(clusteredImage);
 	Conturs ctr = core.buildConturs(scaledImage);
@@ -23,6 +23,10 @@ int main(int argc, char* argv[])
 	cv::imshow( "Clustered Image", clusteredImage );
 	cv::imshow( "Contured Image", conturedImage );
 	
+	// cv::imwrite( "out/clust.jpg", clusteredImage );
+	// cv::imwrite( "out/contur.jpg", conturedImage );
+
+
 	cv::waitKey(0);
 	return 0;
 }

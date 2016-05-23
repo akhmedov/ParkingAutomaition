@@ -1,4 +1,4 @@
-CXX = g++ $(if ${DEBUG},-Wall,)
+CXX = g++ $(if ${DEBUG},-Wall,) -std=c++11
 OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
 OPENCV_LIBS=`pkg-config --libs opencv`
 TEST_SOURCES=$(wildcard test/*.cpp)
@@ -28,6 +28,7 @@ build: $(OBJECTS)
 
 clean:
 	rm -fr bin/
+	rm -fr out/
 
 # Next goals are for inside use only
 
