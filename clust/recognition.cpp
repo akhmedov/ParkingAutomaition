@@ -70,7 +70,7 @@ cv::Mat Recognition::buildCluster(cv::Mat image)
 				layer.at<cv::Vec3b>(y,x)[0] = centers.at<float>(cluster_idx, 0);
 				layer.at<cv::Vec3b>(y,x)[1] = centers.at<float>(cluster_idx, 1);
 				layer.at<cv::Vec3b>(y,x)[2] = centers.at<float>(cluster_idx, 2);
-			} 
+			}
 		}
 	return layer;
 }

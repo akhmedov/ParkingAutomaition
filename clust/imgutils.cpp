@@ -53,6 +53,14 @@ void ImgUtils::drowSpotStatus(Camera cam1, cv::Mat *screen, int markerSize)
 	SpotStatus stat;
 	std::vector<cv::Point> ctr;
 	cv::Scalar markerColor;
+
+	std::string text;
+	cv::Scalar textColor = CV_RGB(0,0,0);
+	int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
+	int thickness = 2;
+	double fontScale = 0.5;
+	int baseline = 0;
+
 	std::vector<unsigned> spotNums = cam1.getSpotNumbers();
 	for(int num = 0; num < spotNums.size(); ++num ) {
 		ctr = cam1.getSpotContour(spotNums[num]);
@@ -73,16 +81,12 @@ void ImgUtils::drowSpotStatus(Camera cam1, cv::Mat *screen, int markerSize)
 				break;
 		}
 		cv::circle(*screen, center, markerSize, markerColor, -1);
+		
 		//add text
-			std::string text = std::to_string(num);
-			int thickness = 2;
-			double fontScale = 0.5;
-			cv::Scalar textColor = CV_RGB(0,0,0);
-			int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
-			int baseline = 0;
-			cv::Size font = cv::getTextSize(text, fontFace, fontScale, thickness, &baseline);
-			baseline += thickness;
-			putText(*screen, text, center-cv::Point2f(5,-6), fontFace, fontScale, cv::Scalar::all(0), thickness, 8);
+		text = std::to_string(num);
+		cv::Size font = cv::getTextSize(text, fontFace, fontScale, thickness, &baseline);
+		baseline += thickness;
+		putText(*screen, text, center-cv::Point2f(5,-6), fontFace, fontScale, cv::Scalar::all(0), thickness, 8);
 	}
 }
 

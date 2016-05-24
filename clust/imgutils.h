@@ -9,9 +9,7 @@
 
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-#include "opencv2/imgcodecs.hpp"
 #include "../parking/camera.h"
-#include <iostream>
 
 struct Conturs {
 	Conturs(cv::Mat e, std::vector<cv::Vec4i> h, 

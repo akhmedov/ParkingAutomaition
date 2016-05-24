@@ -6,8 +6,8 @@ Server configuration is accesseble throw text configuration file.
 
 ### Build and run instraction ###################################################
 ~/ProjDir $ make clean
-~/ProjDir $ make build
-~/ProjDir $ ./bin/parking ./parking.conf
+~/ProjDir $ make DEBUG=1 OUTFILES=1 build
+~/ProjDir $ ./bin/server ./server.conf
 
 ### System reqirements ##########################################################
 - 4x Intel Core i5
@@ -15,7 +15,7 @@ Server configuration is accesseble throw text configuration file.
 
 ### Software Dependency #########################################################
 - GNU/Linux OS is recomended
-- git, make, g++, OpenCV, MongoDB
+- git, make, g++ 4.8.X , OpenCV 2.4.X , MongoDB
 
 ### List of Feachers (version 0.9) ##############################################
 - hardcoded camera-to-layout mapping

@@ -11,13 +11,17 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
 
+#ifdef OUTFILES
+	#define STDOUT(name, data) cv::imwrite(name, data)
+#else
+	#define STDOUT(name, data) cv::imshow(name, data)
+#endif
+
 void hardcodeSpotStatus(Camera *cam1, cv::Mat ctrScreen)
 {
 	std::vector<unsigned> spots = cam1->getSpotNumbers();
-	std::cout << spots.size() << std::endl;
 	for (auto s : spots)
 	 	cam1->setSpotStatus(s, busy);
-	cam1->setSpotStatus(10, vacant);
 	cam1->setSpotStatus(14, vacant);
 }
 
@@ -65,19 +69,26 @@ int main(int argc, char* argv[])
 {
 	Recognition core = Recognition();
 	cv::Mat map = cv::imread(argv[1]);
-	map = ImgUtils::minimize(map, 2);
+	// map = ImgUtils::minimize(map, 2);
 	Camera cam1 = hardcodedCamera(map);
 
 	cv::Mat screen = cv::imread(argv[2]);
-	screen = ImgUtils::minimize(screen, 2);
+	// screen = ImgUtils::minimize(screen, 2);
+	cv::Mat clustScreen = core.buildCluster(screen);
 	Conturs ctr = core.buildConturs(screen);
 	cv::Mat ctrScreen = ImgUtils::drawConturs(ctr);
 
-	// hardcodeSpotStatus(&cam1, ctrScreen);
-	updateSpotStatus(cam1, ctrScreen);
+	hardcodeSpotStatus(&cam1, ctrScreen);
+	// updateSpotStatus(cam1, ctrScreen);
 	ImgUtils::drowSpotStatus(cam1, &screen);
+	
+	// create ./out/ directory manualy !!!
+	STDOUT("out/map.png", map);
+	STDOUT("out/screen.png", cv::imread(argv[2]));
+	STDOUT("out/cluster.png", clustScreen);
+	STDOUT("out/contur.png", ctrScreen);
+	STDOUT("out/result.png", screen);
 
-	cv::imshow( "Spots Status", screen );
 	cv::waitKey(0);
 	return 0;
 }

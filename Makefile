@@ -1,4 +1,4 @@
-CXX = g++ $(if ${DEBUG},-Wall,) -std=c++11
+CXX = g++ $(if ${DEBUG},-Wall -DDEBUG,) $(if ${OUTFILES}, -DOUTFILES,) -std=c++11 
 OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
 OPENCV_LIBS=`pkg-config --libs opencv`
 TEST_SOURCES=$(wildcard test/*.cpp)
@@ -24,7 +24,7 @@ list:
 test: $(TEST_EXECS)
 
 build: $(OBJECTS)
-	$(CXX) -o bin/parking $? $(OPENCV_LIBS)
+	$(CXX) -o bin/server $? $(OPENCV_LIBS)
 
 clean:
 	rm -fr bin/
