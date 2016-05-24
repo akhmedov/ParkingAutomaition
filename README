@@ -15,16 +15,15 @@ Server configuration is accesseble throw text configuration file.
 
 ### Software Dependency #########################################################
 - GNU/Linux OS is recomended
-- git, make, g++ 4.8.X , OpenCV 2.4.X , MongoDB
+- git, make, g++ 4.8, OpenCV 2.4, MySQL 5.5
 
 ### List of Feachers (version 0.9) ##############################################
 - hardcoded camera-to-layout mapping
 - one camera support
-- 20 pixels per object resolution
+- 80 pixels per object resolution
 - real time object clustering with 1 sec lag
 - automation parking monitoring
 - alarm manager (for admin)
-- notification manager (for users)
 
 ### Helpful shell commands for developers #######################################
 ~/ProjDir $ make list 			// number of code lines and project tree
@@ -35,3 +34,4 @@ Server configuration is accesseble throw text configuration file.
 ~ $ sudo apt-get install libswscale-dev libtbb2 libtbb-dev libjpeg-dev
 ~ $ sudo apt-get install libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
 ~ $ sudo apt-get install libopencv-dev
+~ $ sudo apt-get install mysql-server libmysqlclient-dev

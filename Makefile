@@ -1,13 +1,20 @@
-CXX = g++ $(if ${DEBUG},-Wall -DDEBUG,) $(if ${OUTFILES}, -DOUTFILES,) -std=c++11 
+CXX = g++
+CXX_FLAGS=$(if ${DEBUG},-Wall -DDEBUG,) $(if ${OUTFILES}, -DOUTFILES,) 
+CXX_STD=-std=c++11
+
 OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
 OPENCV_LIBS=`pkg-config --libs opencv`
+
 TEST_SOURCES=$(wildcard test/*.cpp)
 TEST_EXECS=$(TEST_SOURCES:test/%.cpp=bin/%)
 SOURCES=main.cpp clust/recognition.cpp clust/imgutils.cpp \
 	parking/camera.cpp parking/spot.cpp
 MAIN_SRC=main.cpp
+
 OBJECTS=$(SOURCES:%.cpp=bin/%.o)
 MAIN_OBJS=$(MAIN_SRC:%.cpp=bin/%.o)
+
+.PHONY: $(clean) $(list)
 
 try_photo_cv:
 	bin/singleFrameCVIT screenshot/map.png screenshot/2016-05-18_12\:09\:15.png
@@ -24,28 +31,28 @@ list:
 test: $(TEST_EXECS)
 
 build: $(OBJECTS)
-	$(CXX) -o bin/server $? $(OPENCV_LIBS)
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) -o bin/server $? $(OPENCV_LIBS)
 
 clean:
-	rm -fr bin/
-	rm -fr out/
+	@rm -fr bin/
+	@rm -fr out/
 
 # Next goals are for inside use only
 
 bin/%.o: %.cpp
 	@echo Build $@
 	@mkdir -p $(@D)
-	$(CXX) -c $< -o $@
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) -c $< -o $@
 
 bin/clust/%.o: clust/%.cpp clust/*.h
 	@echo Build $@
 	@mkdir -p $(@D)
-	$(CXX) -c $(OPENCV_FLAGS) $< -o $@
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) -c $(OPENCV_FLAGS) $< -o $@
 
 bin/parking/%.o: parking/%.cpp parking/*.h
 	@echo Build $@
 	@mkdir -p $(@D)
-	$(CXX) -c $(OPENCV_FLAGS) $< -o $@
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) -c $(OPENCV_FLAGS) $< -o $@
 
 # $(EXECUTABLE): $(SOURCES)
 
@@ -57,6 +64,6 @@ bin/parking/%.o: parking/%.cpp parking/*.h
 $(TEST_EXECS): bin/%:test/%.cpp
 	@echo Build $@
 	@mkdir -p $(@D)
-	@$(CXX) $(OPENCV_FLAGS) $^ $(OPENCV_LIBS) -o $@
+	@$(CXX) $(CXX_STD) $(CXX_FLAGS) $(OPENCV_FLAGS) $^ $(OPENCV_LIBS) -o $@
 
 $(TEST_EXECS): $(filter-out $(MAIN_OBJS),$(OBJECTS))
