@@ -21,7 +21,7 @@ void hardcodeSpotStatus(Camera *cam1, cv::Mat ctrScreen)
 {
 	std::vector<unsigned> spots = cam1->getSpotNumbers();
 	for (auto s : spots)
-	 	cam1->setSpotStatus(s, busy);
+		cam1->setSpotStatus(s, busy);
 	cam1->setSpotStatus(14, vacant);
 }
 
