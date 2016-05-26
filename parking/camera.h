@@ -18,8 +18,10 @@ public:
 	Camera(unsigned num, std::list<Spot> spotConfiguration, 
 		std::vector<std::vector<cv::Point> > roadMask);
 
+	unsigned getID();
 	std::vector<unsigned> getSpotNumbers();
 	SpotStatus getSpotStatus(unsigned spotNum);
+	std::string getSpotGPS(unsigned spotNum);
 	std::vector<cv::Point> getSpotContour(unsigned spotNum);
 	unsigned getDefaultFill(unsigned spotNum);
 	void setSpotStatus(unsigned spotNum, SpotStatus sts);

@@ -50,6 +50,11 @@ bool Spot::isTrackable()
 	return trackable;
 }
 
+std::string Spot::getGPS()
+{
+	return gpsLocation;
+}
+
 SpotStatus Spot::getStatus()
 {
 	return status;

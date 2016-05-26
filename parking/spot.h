@@ -21,6 +21,7 @@ public:
 	void untrack();
 
 	unsigned getDefaultFill();
+	std::string getGPS();
 	std::vector<cv::Point> getCountur();
 	unsigned getNumber();
 	bool isTrackable();

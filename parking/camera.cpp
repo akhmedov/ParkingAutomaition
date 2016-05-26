@@ -24,6 +24,13 @@ SpotStatus Camera::getSpotStatus(unsigned spotNum)
 	return spot->getStatus();
 }
 
+std::string Camera::getSpotGPS(unsigned spotNum)
+{
+	std::list<Spot>::iterator spot = spotEntity.begin();
+	std::advance(spot, spotNum);
+	return spot->getGPS();
+}
+
 unsigned Camera::getDefaultFill(unsigned spotNum)
 {
 	std::list<Spot>::iterator spot = spotEntity.begin();
@@ -43,4 +50,9 @@ std::vector<cv::Point> Camera::getSpotContour(unsigned spotNum)
 	std::list<Spot>::iterator spot = spotEntity.begin();
 	std::advance(spot, spotNum);
 	return spot->getCountur();
+}
+
+unsigned Camera::getID()
+{
+	return this->number;
 }

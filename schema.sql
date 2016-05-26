@@ -5,7 +5,7 @@ USE ParkingAutomation;
 
 CREATE TABLE IF NOT EXISTS `Spot` (
 	Num		INTEGER NOT NULL,
-	GPS		VARCHAR(20),
+	GPS		VARCHAR(40),
 	Seed	INTEGER,
 	Status	ENUM('vacant', 'busy', 'unknown'),
 	PRIMARY KEY (Num)
@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS `Road` (
 );
  
 CREATE TABLE IF NOT EXISTS `Contour` (
-	PointID		INTEGER(100) NOT NULL,
-	CameraID	VARCHAR(20) NOT NULL,
+	PointID		INTEGER NOT NULL,
+	CameraID	VARCHAR(20),
 	valX		INTEGER NOT NULL,
 	valY		INTEGER NOT NULL,
 	SpotNum		INTEGER,

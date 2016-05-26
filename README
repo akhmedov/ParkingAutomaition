@@ -26,7 +26,13 @@ Server configuration is accesseble throw text configuration file.
 - alarm manager (for admin)
 
 ### Helpful shell commands for developers #######################################
-~/ProjDir $ make list 			// number of code lines and project tree
+// number of code lines and project tree
+~/ProjDir $ make list
+// Spot table structure
+~ $ mysql -ucv -pFKrse36Gh -e "SHOW COLUMNS FROM ParkingAutomation.Spot;"
+// show Spots informaiton
+~ $ mysql -ucv -pFKrse36Gh -e "SELECT * FROM ParkingAutomation.Spot;"
+
 
 ### Environment instalation guide for Ubuntu 14.04 LTE amd64 ####################
 ~ $ sudo apt-get install build-essential git
