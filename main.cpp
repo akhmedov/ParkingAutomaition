@@ -5,6 +5,7 @@
 *                   Event Logger output to stdout                   *
 ********************************************************************/
 
+#include "logics/datafactory.h"
 #include "clust/recognition.h"
 #include "parking/camera.h"
 
@@ -15,7 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-#include <regex>
+#include <regex> // TODO: not implemented config parsing
 
 struct Configuration {
 	Configuration(std::string pathToFile);
@@ -28,12 +29,6 @@ struct Configuration {
 void printHelp();
 void printVersion();
 
-Camera readCameraFromSQL(MYSQL* connection);
-void writeCameraStatusToSQL(MYSQL *connection, Camera cam);
-void updateCameraStatusFromSQL(MYSQL *connection, Camera *cam);
-SpotStatus spotStatusFromCstr(std::string str);
-
-Camera getCameraFromParkingMap(cv::Mat parkingMap);
 void videoOut();
 void updateCamStatus();
 
@@ -62,12 +57,12 @@ int main(int argc, char* argv[])
 		if (map != NULL) {
 
 			std::cout << "studying..." << std::endl;
-			Camera cam1 = getCameraFromParkingMap(*map);
-			writeCameraStatusToSQL(CONF->conn, cam1);
+			Camera cam1 = DataFactory::getCameraFromParkingMap(*map);
+			DataFactory::writeCameraStatusToSQL(CONF->conn, cam1);
 
 		} else {
 
-			CAMERA = readCameraFromSQL(CONF->conn);
+			CAMERA = DataFactory::readCameraFromSQL(CONF->conn);
 			CONF->stream.read(CAMERASCREAN);
 
 			std::thread streeming (videoOut);
@@ -170,15 +165,6 @@ Configuration::Configuration(std::string pathToFile)
 			std::cerr << mysql_error(this->conn) << std::endl;
 		}
 
-/*		int query_state = mysql_query(connection, "SHOW COLUMNS FROM ParkingAutomation.Spot");
-		MYSQL_RES* res = mysql_store_result(connection);
-		MYSQL_ROW row;
-
-		while ((row = mysql_fetch_row(res)) != NULL) {
-			printf("%s \t %s\t %s\t %s\t\t %s\n", 
-				row[0], row[1], row[2], row[3], row[4]);
-		}*/
-
 		this->stream.open(*cam_url);
 		this->core = Recognition();
 	}
@@ -187,134 +173,4 @@ Configuration::Configuration(std::string pathToFile)
 Configuration::~Configuration()
 {
 
-}
-
-Camera readCameraFromSQL(MYSQL* connection)
-{
-	std::list<Spot> spotConfiguration;
-
-	std::string select = std::string("SELECT * FROM ParkingAutomation.Spot ") + 
-		std::string("JOIN ParkingAutomation.Contour ON SpotNum = Num;");
-	mysql_query(connection, select.c_str());
-	MYSQL_RES* res = mysql_store_result(connection);
-	MYSQL_ROW row;
-
-	std::vector<cv::Point> contur;
-	unsigned spotNum = -1;
-	SpotStatus sts;
-	unsigned seed;
-	std::string gps;
-	while ( (row = mysql_fetch_row(res)) ) {
-
-		if (spotNum != std::atoi(row[0])) {
-			if (!contur.empty()) {
-				Spot sp(spotNum, contur, gps);
-				sp.setDefaultFill(seed);
-				sp.setStatus(sts);
-				spotConfiguration.push_back(sp);
-				contur.clear();
-			}
-			spotNum = std::atoi(row[0]);
-			sts = spotStatusFromCstr(row[3]); // minus one! !!!!!!!!!!!!!!!!!!!!!!!!!!!
-			seed = std::atoi(row[2]);
-			gps = std::atoi(row[1]);
-		}
-
-		cv::Point2f dot(std::atoi(row[6]), std::atoi(row[7]));
-		contur.push_back(dot);
-	}
-
-	Spot sp(spotNum, contur, gps);
-	sp.setDefaultFill(seed);
-	sp.setStatus(sts);
-	spotConfiguration.push_back(sp);
-	contur.clear();
-
-	// TODO: read road
-
-	// int columnsNum = mysql_num_fields(res);
-	// std::cout << columnsNum << std::endl;
-
-	std::vector<std::vector<cv::Point> > roadMask;
-
-	return 	Camera(1, spotConfiguration, roadMask);
-}
-
-SpotStatus spotStatusFromCstr(std::string str)
-{
-	if (str == std::string("vacant")) 
-		return vacant;
-	else if (str == std::string("busy")) 
-		return busy;
-	else if (str == std::string("unknown")) 
-		return unknown;
-}
-
-void writeCameraStatusToSQL(MYSQL *connection, Camera cam)
-{
-	std::string values;
-	std::string insert;
-	std::string tname;
-
-	unsigned dotCount = 0;
-
-	// TODO: road entity
-
-	for (auto spotNum : cam.getSpotNumbers())
-	{
-		tname = "Spot";
-		values = '\'' + std::to_string(spotNum) + "\'," + 
-				 '\'' + cam.getSpotGPS(spotNum) + "\'," +
-				 '\'' + std::to_string(cam.getDefaultFill(spotNum)) + "\'," +
-				 '\'' + std::to_string(1+cam.getSpotStatus(spotNum)) + '\'';
-		
-		insert = "INSERT INTO ParkingAutomation." + tname +  
-			" VALUES ("  + values + ")";
-		mysql_query(connection, insert.c_str());
-		// fprintf(stderr, "%s\n", mysql_error(connection));
-
-		tname = "Contour";
-		for (auto dot : cam.getSpotContour(spotNum)) {
-			values = std::to_string(spotNum+dotCount) + "," + 
-				 '\'' + std::to_string(cam.getID()) + "\'," +
-				 '\'' + std::to_string(dot.x) + "\'," +
-				 '\'' + std::to_string(dot.y) + "\'," +
-				 '\'' + std::to_string(spotNum) + "\'," +
-				 "NULL";
-			insert = "INSERT INTO ParkingAutomation." + tname +  
-				" VALUES ("  + values + ")";
-			mysql_query(connection, insert.c_str());
-			// fprintf(stderr, "%s\n", mysql_error(connection));
-			dotCount++;
-		}
-	}
-}
-
-Camera getCameraFromParkingMap(cv::Mat parkingMap)
-{
-	Recognition core = Recognition(510);
-
-	// get spot configuration
-	std::list<Spot> spotConfiguration;
-	int R = 255, G = 255, B = 0;
-	cv::Vec3b yellow = cv::Vec3b(B, G, R);	
-	Conturs ctrSpot = core.findColorBlot(parkingMap, yellow);
-	for (int i = 0; i < ctrSpot.location.size(); i++) {
-		Spot sp((unsigned) i, ctrSpot.location[i], "Null");
-		sp.setDefaultFill(0);
-		sp.setStatus(unknown);
-		spotConfiguration.push_back(sp);
-	}
-
-	// get road
-	std::vector<std::vector<cv::Point> > roadMask;
-	R = 0; G = 255; B = 255; 
-	cv::Vec3b blue = cv::Vec3b(B, G, R);
-	Conturs ctrRoad = core.findColorBlot(parkingMap, blue);
-	for (int i = 0; i < ctrRoad.location.size(); i++) {
-		roadMask.push_back(ctrRoad.location[i]);
-	}
-
-	Camera cam1 = Camera(1, spotConfiguration, roadMask);
-	return cam1;
 }

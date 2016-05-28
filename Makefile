@@ -12,7 +12,8 @@ MYSQL_LIBS =`mysql_config --libs`
 TEST_SOURCES=$(wildcard test/*.cpp)
 TEST_EXECS=$(TEST_SOURCES:test/%.cpp=bin/%)
 SOURCES=main.cpp clust/recognition.cpp clust/imgutils.cpp \
-	parking/camera.cpp parking/spot.cpp
+	parking/camera.cpp parking/spot.cpp \
+	logics/datafactory.h logics/datafactory.cpp
 MAIN_SRC=main.cpp
 
 OBJECTS=$(SOURCES:%.cpp=bin/%.o)
@@ -52,6 +53,11 @@ bin/clust/%.o: clust/%.cpp clust/*.h
 	@echo Build $@
 	@mkdir -p $(@D)
 	$(CXX) $(CXX_STD) $(CXX_FLAGS) -c $(MYSQL_FLAGS) $(OPENCV_FLAGS) $< -o $@
+
+bin/logics/%.o: logics/%.cpp logics/*.h
+	@echo Build $@
+	@mkdir -p $(@D)
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) -c $(MYSQL_FLAGS) $(OPENCV_FLAGS) $< -o $@	
 
 bin/parking/%.o: parking/%.cpp parking/*.h
 	@echo Build $@
