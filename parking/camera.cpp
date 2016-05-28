@@ -1,5 +1,10 @@
 #include "camera.h"
 
+Camera::Camera()
+{
+	
+}
+
 Camera::Camera(unsigned num, std::list<Spot> spotConfiguration, 
 		std::vector<std::vector<cv::Point> > roadMask)
 {

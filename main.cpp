@@ -14,6 +14,7 @@
 #include <mysql/mysql.h>
 #include <iostream>
 #include <fstream>
+#include <thread>
 #include <regex>
 
 struct Configuration {
@@ -27,58 +28,84 @@ struct Configuration {
 void printHelp();
 void printVersion();
 
-void readCameraFromSQL(MYSQL* connection);
+Camera readCameraFromSQL(MYSQL* connection);
 void writeCameraStatusToSQL(MYSQL *connection, Camera cam);
 void updateCameraStatusFromSQL(MYSQL *connection, Camera *cam);
+SpotStatus spotStatusFromCstr(std::string str);
 
 Camera getCameraFromParkingMap(cv::Mat parkingMap);
+void videoOut();
+void updateCamStatus();
+
+Configuration* CONF = NULL;
+cv::Mat CAMERASCREAN;
+Camera CAMERA;
+
 
 int main(int argc, char* argv[])
 {
-	Configuration* conf = NULL;
+	
 	cv::Mat* map = NULL;
 
 	for (int i = 1; i < argc; i++)
 		if (argv[i] == std::string("--study"))
 			map = new cv::Mat(cv::imread(argv[i+1]));
 		else if (argv[i] == std::string("--config"))
-			conf = new Configuration(argv[i+1]);
+			CONF = new Configuration(argv[i+1]);
 		else if (argv[i] == std::string("--help"))
 			printHelp();
 		else if (argv[i] == std::string("--version"))
 			printVersion();
 
-	if (conf != NULL) {
+	if (CONF != NULL) {
 
-		// TODO: create mysql connection
-		
 		if (map != NULL) {
 
-			// TODO: study
 			std::cout << "studying..." << std::endl;
 			Camera cam1 = getCameraFromParkingMap(*map);
-			writeCameraStatusToSQL(conf->conn, cam1);
+			writeCameraStatusToSQL(CONF->conn, cam1);
 
 		} else {
 
-			// TODO: recognition
+			CAMERA = readCameraFromSQL(CONF->conn);
+			CONF->stream.read(CAMERASCREAN);
 
-			/*Camera cam1 = */readCameraFromSQL(conf->conn);
-
-			cv::Mat image;
-			for(;;) {
-				if(!conf->stream.read(image)) {
-					std::cout << "No frame" << std::endl;
-					cv::waitKey();
-				}
-				cv::imshow("Output Window", image);
-				if(cv::waitKey(1) >= 0) break;
-			}
+			std::thread streeming (videoOut);
+			std::thread recognition (updateCamStatus);
+			streeming.join();
+			recognition.join();
 		}
 	}
 
 	// TODO: server termination
 	return 0;
+}
+
+void updateCamStatus()
+{
+	Conturs ctr = CONF->core.buildConturs(CAMERASCREAN);
+	cv::Mat ctrScreen = ImgUtils::drawConturs(ctr);
+	for (auto spot : CAMERA.getSpotNumbers()) {
+	unsigned imgFill = ImgUtils::culcFill(ctrScreen, CAMERA.getSpotContour(spot));
+	unsigned deffaultFill = CAMERA.getDefaultFill(spot);
+	if (imgFill > deffaultFill)
+		CAMERA.setSpotStatus(spot, busy);
+	else
+		CAMERA.setSpotStatus(spot, vacant);
+	}
+}
+
+void videoOut()
+{
+	for(;;) {
+		if(!CONF->stream.read(CAMERASCREAN)) {
+			std::cout << "No frame" << std::endl;
+			cv::waitKey();
+		}
+		ImgUtils::drowSpotStatus(CAMERA, &CAMERASCREAN);
+		cv::imshow("Output Window", CAMERASCREAN);
+		// if(cv::waitKey(1) >= 0) break;
+	}
 }
 
 void printVersion()
@@ -162,44 +189,65 @@ Configuration::~Configuration()
 
 }
 
-void readCameraFromSQL(MYSQL* connection)
+Camera readCameraFromSQL(MYSQL* connection)
 {
 	std::list<Spot> spotConfiguration;
 
-	std::string select = "SELECT * FROM ParkingAutomation.Spot " + 
-		"JOIN ParkingAutomation.Contour ON SpotNum = Num;";
+	std::string select = std::string("SELECT * FROM ParkingAutomation.Spot ") + 
+		std::string("JOIN ParkingAutomation.Contour ON SpotNum = Num;");
 	mysql_query(connection, select.c_str());
 	MYSQL_RES* res = mysql_store_result(connection);
 	MYSQL_ROW row;
 
 	std::vector<cv::Point> contur;
-	unsigned spotNum;
+	unsigned spotNum = -1;
 	SpotStatus sts;
 	unsigned seed;
 	std::string gps;
-	while ( (row = mysql_fetch_row(res)) {
-		if (spotNum != row[0]) {
-			spotNum = row[0];
-			sts = row[3]-1;
-			seed = row[2];
-			gps = row[1];
+	while ( (row = mysql_fetch_row(res)) ) {
+
+		if (spotNum != std::atoi(row[0])) {
+			if (!contur.empty()) {
+				Spot sp(spotNum, contur, gps);
+				sp.setDefaultFill(seed);
+				sp.setStatus(sts);
+				spotConfiguration.push_back(sp);
+				contur.clear();
+			}
+			spotNum = std::atoi(row[0]);
+			sts = spotStatusFromCstr(row[3]); // minus one! !!!!!!!!!!!!!!!!!!!!!!!!!!!
+			seed = std::atoi(row[2]);
+			gps = std::atoi(row[1]);
 		}
 
-		cv::Point2f dot(row[7], row[8]);
+		cv::Point2f dot(std::atoi(row[6]), std::atoi(row[7]));
 		contur.push_back(dot);
 	}
 
-/*	while ( (rowSpot = mysql_fetch_row(resSpot)) ) {
-		std::vector<cv::Point> contur;
+	Spot sp(spotNum, contur, gps);
+	sp.setDefaultFill(seed);
+	sp.setStatus(sts);
+	spotConfiguration.push_back(sp);
+	contur.clear();
 
-		Spot sp(row[0], contur, row[1]);
-		sp.setDefaultFill(row[2]);
-		sp.setStatus(row[3]);
-		spotConfiguration.push_back(sp);
-	} */
+	// TODO: read road
 
-	int columnsNum = mysql_num_fields(res);
-	std::cout << columnsNum << std::endl;
+	// int columnsNum = mysql_num_fields(res);
+	// std::cout << columnsNum << std::endl;
+
+	std::vector<std::vector<cv::Point> > roadMask;
+
+	return 	Camera(1, spotConfiguration, roadMask);
+}
+
+SpotStatus spotStatusFromCstr(std::string str)
+{
+	if (str == std::string("vacant")) 
+		return vacant;
+	else if (str == std::string("busy")) 
+		return busy;
+	else if (str == std::string("unknown")) 
+		return unknown;
 }
 
 void writeCameraStatusToSQL(MYSQL *connection, Camera cam)

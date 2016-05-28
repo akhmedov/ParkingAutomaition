@@ -15,6 +15,7 @@
 
 class Camera {
 public:
+	Camera();
 	Camera(unsigned num, std::list<Spot> spotConfiguration, 
 		std::vector<std::vector<cv::Point> > roadMask);
 
