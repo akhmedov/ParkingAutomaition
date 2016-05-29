@@ -1,5 +1,16 @@
 #include "datafactory.h"
 
+void DataFactory::updateSpotSeed(cv::VideoCapture stream,
+	MYSQL* connection, unsigned spotNumber)
+{
+	unsigned newSeed;
+	std::string select = std::string("UPDATE ParkingAutomation.Spot ") + 
+		std::string("SET Seed=") + std::to_string(newSeed) + 
+		std::string(" WHERE Num=") + std::to_string(spotNumber) +
+		+ ";";
+	mysql_query(connection, select.c_str());
+}
+
 Camera DataFactory::readCameraFromSQL(MYSQL* connection)
 {
 	std::list<Spot> spotConfiguration;

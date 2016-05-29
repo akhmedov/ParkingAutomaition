@@ -16,7 +16,6 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
-#include <regex> // TODO: not implemented config parsing
 
 struct Configuration {
 	Configuration(std::string pathToFile);
@@ -32,15 +31,20 @@ void printVersion();
 void videoOut();
 void updateCamStatus();
 
+std::string reduce(const std::string& str,
+				   const std::string& fill = " ",
+				   const std::string& whitespace = " \t");
+std::string trim(const std::string& str,
+				 const std::string& whitespace = " \t");
+
 Configuration* CONF = NULL;
 cv::Mat CAMERASCREAN;
 Camera CAMERA;
 
-
 int main(int argc, char* argv[])
 {
-	
 	cv::Mat* map = NULL;
+	unsigned spotNumber = -1;
 
 	for (int i = 1; i < argc; i++)
 		if (argv[i] == std::string("--study"))
@@ -51,6 +55,8 @@ int main(int argc, char* argv[])
 			printHelp();
 		else if (argv[i] == std::string("--version"))
 			printVersion();
+		else if (argv[i] == std::string("--seed-for"))
+			spotNumber = std::atoi(argv[i+1]);
 
 	if (CONF != NULL) {
 
@@ -61,18 +67,25 @@ int main(int argc, char* argv[])
 			DataFactory::writeCameraStatusToSQL(CONF->conn, cam1);
 
 		} else {
+			
+			if(CONF->stream.read(CAMERASCREAN)) {
+				
+				if (spotNumber != -1)
+					DataFactory::updateSpotSeed(CONF->stream, CONF->conn, spotNumber);
+						
+				CAMERA = DataFactory::readCameraFromSQL(CONF->conn);
+				CONF->stream.read(CAMERASCREAN); // is necessary?
 
-			CAMERA = DataFactory::readCameraFromSQL(CONF->conn);
-			CONF->stream.read(CAMERASCREAN);
+				std::thread streeming (videoOut);
+				std::thread recognition (updateCamStatus);
+				streeming.join();
+				recognition.join();
+			} 
+			else return -1;
 
-			std::thread streeming (videoOut);
-			std::thread recognition (updateCamStatus);
-			streeming.join();
-			recognition.join();
 		}
 	}
 
-	// TODO: server termination
 	return 0;
 }
 
@@ -105,7 +118,8 @@ void videoOut()
 
 void printVersion()
 {
-	std::cout << "Parking Automaition Server version 0.9" << std::endl
+	std::cout 
+		<< "Parking Automaition Server version 0.9" << std::endl
 		<< "Designed by Rolan Akhmedov -- rolan.kharkiv@gmail.com" << std::endl
 		<< "Source code requiers distribution under GPLv3 licence" 
 		<< std::endl;
@@ -113,13 +127,13 @@ void printVersion()
 
 void printHelp()
 {
-	std::cout << "Usage: server [OPSION] [--config POSIX_PATH]" << std::endl
+	std::cout << "Usage: server [OPSION] --config POSIX_PATH" << std::endl
 	<< "Available options and staitmens:" << std::endl
-	<< "--help 					print this text" << std::endl
-	<< "--version 				print software informaiton" << std::endl
-	<< "--study [IMAGE]				self-study on image" << std::endl
-	<< "--seed [SPOT_NUM] --screen [IMAGE]	set seed to the spot form screenshot" << std::endl
-	<< "--config [POSIX_PATH] 			read configuration from a custom place"
+	<< "--help			print this text" << std::endl
+	<< "--version		print software informaiton" << std::endl
+	<< "--study [IMAGE]		self-study on image" << std::endl
+	<< "--seed-for [SPOT_NUM]	set seed to the spot form screenshot" << std::endl
+	<< "--config [POSIX_PATH]	read configuration from a custom place"
 	<< std::endl;
 }
 
@@ -137,6 +151,7 @@ Configuration::Configuration(std::string pathToFile)
 	while (std::getline(file, line))
 	{
 		// line = std::regex_replace(line, std::regex("^ +| +$|( ) +"), "$1");
+		line = reduce(line);
 		if (line.size() == 0) {
 			line = line;
 		} else if (line[0] == '#') {
@@ -165,7 +180,10 @@ Configuration::Configuration(std::string pathToFile)
 			std::cerr << mysql_error(this->conn) << std::endl;
 		}
 
-		this->stream.open(*cam_url);
+		if( !this->stream.open(*cam_url) )
+			std::cout << "Error opening video stream or file" << std::endl;
+
+		// TODO: read from config
 		this->core = Recognition();
 	}
 }
@@ -173,4 +191,40 @@ Configuration::Configuration(std::string pathToFile)
 Configuration::~Configuration()
 {
 
+}
+
+std::string trim(const std::string& str,
+				 const std::string& whitespace)
+{
+	const auto strBegin = str.find_first_not_of(whitespace);
+	if (strBegin == std::string::npos)
+		return ""; // no content
+
+	const auto strEnd = str.find_last_not_of(whitespace);
+	const auto strRange = strEnd - strBegin + 1;
+
+	return str.substr(strBegin, strRange);
+}
+
+std::string reduce(const std::string& str,
+				   const std::string& fill,
+				   const std::string& whitespace)
+{
+	// trim first
+	auto result = trim(str, whitespace);
+
+	// replace sub ranges
+	auto beginSpace = result.find_first_of(whitespace);
+	while (beginSpace != std::string::npos)
+	{
+		const auto endSpace = result.find_first_not_of(whitespace, beginSpace);
+		const auto range = endSpace - beginSpace;
+
+		result.replace(beginSpace, range, fill);
+
+		const auto newStart = beginSpace + fill.length();
+		beginSpace = result.find_first_of(whitespace, newStart);
+	}
+
+	return result;
 }

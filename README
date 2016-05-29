@@ -1,7 +1,7 @@
 ### Abstract ####################################################################
 ParcingAutomaition is a server application for parking monitoring systems.
 The server application contains IP camera interface and computer vision methods.
-The software is based on OpenCV solutions. MongoDB is used to store big data.
+The software is based on OpenCV solutions. MySQL is used to store sudy data.
 Server configuration is accesseble throw text configuration file.
 
 ### Build and run instraction ###################################################
@@ -28,6 +28,8 @@ Server configuration is accesseble throw text configuration file.
 ### Helpful shell commands for developers #######################################
 // number of code lines and project tree
 ~/ProjDir $ make list
+// commit history in local branch
+~/ProjDir $ git log --graph --decorate --oneline --all
 // Spot table structure
 ~ $ mysql -ucv -pFKrse36Gh -e "SHOW COLUMNS FROM ParkingAutomation.Spot;"
 // show Spots informaiton

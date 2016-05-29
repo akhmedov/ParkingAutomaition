@@ -8,6 +8,8 @@
 
 class DataFactory {
 public:
+	static void updateSpotSeed(cv::VideoCapture stream,
+		MYSQL* connection, unsigned spotNumber);
 	static Camera readCameraFromSQL(MYSQL* connection);
 	static void writeCameraStatusToSQL(MYSQL *connection, Camera cam);
 	// static void updateCameraStatusFromSQL(MYSQL *connection, Camera *cam);
