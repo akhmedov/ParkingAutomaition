@@ -20,6 +20,7 @@ public:
 		std::vector<std::vector<cv::Point> > roadMask);
 
 	unsigned getID();
+	Spot getSpotEntity(unsigned spotNum);
 	std::vector<unsigned> getSpotNumbers();
 	SpotStatus getSpotStatus(unsigned spotNum);
 	std::string getSpotGPS(unsigned spotNum);

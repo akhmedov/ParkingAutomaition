@@ -13,6 +13,13 @@ Camera::Camera(unsigned num, std::list<Spot> spotConfiguration,
 	this->roadCountur = roadMask;
 }
 
+Spot Camera::getSpotEntity(unsigned spotNum)
+{
+	std::list<Spot>::iterator spot = spotEntity.begin();
+	std::advance(spot, spotNum);
+	return *spot;
+}
+
 std::vector<unsigned> Camera::getSpotNumbers()
 {
 	std::vector<unsigned> nums;

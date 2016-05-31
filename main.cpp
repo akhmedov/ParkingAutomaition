@@ -17,6 +17,8 @@
 #include <fstream>
 #include <thread>
 
+#define VIDEO_STREAM_SCALE 2
+
 struct Configuration {
 	Configuration(std::string pathToFile);
 	cv::VideoCapture stream;
@@ -69,12 +71,17 @@ int main(int argc, char* argv[])
 		} else {
 			
 			if(CONF->stream.read(CAMERASCREAN)) {
-				
-				if (spotNumber != -1)
-					DataFactory::updateSpotSeed(CONF->stream, CONF->conn, spotNumber);
-						
+
 				CAMERA = DataFactory::readCameraFromSQL(CONF->conn);
-				CONF->stream.read(CAMERASCREAN); // is necessary?
+				
+				if (spotNumber != -1) {
+					// DataFactory::updateSpotSeed();
+					Spot spEntity = CAMERA.getSpotEntity(spotNumber);
+					DataFactory::updateSpotSeed(CONF->stream, 
+						CONF->conn, spEntity, CAMERASCREAN);
+				}
+
+				// CONF->stream.read(CAMERASCREAN); // is necessary?
 
 				std::thread streeming (videoOut);
 				std::thread recognition (updateCamStatus);
@@ -112,7 +119,7 @@ void videoOut()
 		}
 		ImgUtils::drowSpotStatus(CAMERA, &CAMERASCREAN);
 		cv::imshow("Output Window", CAMERASCREAN);
-		// if(cv::waitKey(1) >= 0) break;
+		if(cv::waitKey(1) >= 0) break;
 	}
 }
 
