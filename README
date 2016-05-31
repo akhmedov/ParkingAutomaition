@@ -6,8 +6,9 @@ Server configuration is accesseble throw text configuration file.
 
 ### Build and run instraction ###################################################
 ~/ProjDir $ make clean
-~/ProjDir $ make DEBUG=1 OUTFILES=1 build
-~/ProjDir $ ./bin/server ./server.conf
+~/ProjDir $ make DEBUG=1 OUTFILES=1 test
+~/ProjDir $ make build
+~/ProjDir $ ./bin/server --config ./server.conf
 
 ### System reqirements ##########################################################
 - 4x Intel Core i5
