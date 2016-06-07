@@ -13,11 +13,15 @@ unsigned ImgUtils::culcFill(const cv::Mat &image, const std::vector<cv::Point> &
 {
 	unsigned fill = 0;
 	for( int y = 0; y < image.rows; y++ )
-		for( int x = 0; x < image.cols; x++ )
-			if ( image.at<cv::Vec3b>(y,x)[0] != 0 ||
-				image.at<cv::Vec3b>(y,x)[1] != 0 ||
-				image.at<cv::Vec3b>(y,x)[2] != 0 ) 
-				fill++;
+		for( int x = 0; x < image.cols; x++ ) {
+			cv::Point2f dot(x,y);
+			if (ImgUtils::isPointInside(dot, contur)) {
+				if ( image.at<cv::Vec3b>(y,x)[0] != 0 ||
+					image.at<cv::Vec3b>(y,x)[1] != 0 ||
+					image.at<cv::Vec3b>(y,x)[2] != 0 )
+						fill++;
+			}
+		}			
 	return fill;
 }
 

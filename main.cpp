@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <thread>
+#include <ctime>
 
 #define VIDEO_STREAM_SCALE 2
 
@@ -98,15 +99,36 @@ int main(int argc, char* argv[])
 
 void updateCamStatus()
 {
-	Conturs ctr = CONF->core.buildConturs(CAMERASCREAN);
-	cv::Mat ctrScreen = ImgUtils::drawConturs(ctr);
-	for (auto spot : CAMERA.getSpotNumbers()) {
-	unsigned imgFill = ImgUtils::culcFill(ctrScreen, CAMERA.getSpotContour(spot));
-	unsigned deffaultFill = CAMERA.getDefaultFill(spot);
-	if (imgFill > deffaultFill)
-		CAMERA.setSpotStatus(spot, busy);
-	else
-		CAMERA.setSpotStatus(spot, vacant);
+	for(;;) {
+		Conturs ctr = CONF->core.buildConturs(CAMERASCREAN);
+		cv::Mat ctrScreen = ImgUtils::drawConturs(ctr);
+		SpotStatus updated, old;
+		
+		for (auto spot : CAMERA.getSpotNumbers()) {
+			unsigned imgFill = ImgUtils::culcFill(ctrScreen, CAMERA.getSpotContour(spot));
+			unsigned deffaultFill = CAMERA.getDefaultFill(spot);
+			old = CAMERA.getSpotStatus(spot);
+			if (imgFill > deffaultFill) {
+				updated = busy;
+			} else {
+				updated = vacant;
+			}
+			CAMERA.setSpotStatus(spot, busy);
+
+			#ifdef DEBUG
+				if (old != updated) {
+					time_t now = std::time(0);
+					tm *ltm = localtime(&now);
+					std::cout << "["
+						<< 1900 + ltm->tm_year << "-" << 1+ltm->tm_mon << "-"
+						<< ltm->tm_mday << "-" << ltm->tm_hour 
+						<< "-" << ltm->tm_min << "-" << ltm->tm_sec << "]" 
+						<< "  SpotNum " << spot << ": " << old
+						<< " --> " << updated << std::endl;
+				}
+			#endif
+
+		}
 	}
 }
 
@@ -118,7 +140,7 @@ void videoOut()
 			cv::waitKey();
 		}
 		ImgUtils::drowSpotStatus(CAMERA, &CAMERASCREAN);
-		cv::imshow("Output Window", CAMERASCREAN);
+		cv::imshow("Output Window", ImgUtils::minimize(CAMERASCREAN, 2));
 		if(cv::waitKey(1) >= 0) break;
 	}
 }

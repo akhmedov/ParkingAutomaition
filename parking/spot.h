@@ -11,6 +11,7 @@
 #include "opencv2/highgui/highgui.hpp"
 
 enum SpotStatus {vacant, busy, unknown};
+// std::string SpotStatusMap[] = {"vacant", "busy", "unknown"};
 
 class Spot {
 public:
