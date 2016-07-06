@@ -36,7 +36,6 @@ Server configuration is accesseble throw text configuration file.
 // show Spots informaiton
 ~ $ mysql -ucv -pFKrse36Gh -e "SELECT * FROM ParkingAutomation.Spot;"
 
-
 ### Environment instalation guide for Ubuntu 14.04 LTE amd64 ####################
 ~ $ sudo apt-get install build-essential git
 ~ $ sudo apt-get install libgtk2.0-dev pkg-config libavcodec-dev libavformat-dev
@@ -44,3 +43,9 @@ Server configuration is accesseble throw text configuration file.
 ~ $ sudo apt-get install libpng-dev libtiff-dev libjasper-dev libdc1394-22-dev
 ~ $ sudo apt-get install libopencv-dev
 ~ $ sudo apt-get install mysql-server libmysqlclient-dev
+
+### TODO List ###################################################################
+1. Apply inheritance paradigm in classes Camera, cv::Camera and Parking
+2. Linux demon and CLI client server side arch. IPC for the perpoce
+4. Camera URL security
+3. Interface implementation for CV methods
