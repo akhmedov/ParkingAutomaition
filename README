@@ -5,10 +5,23 @@ The software is based on OpenCV solutions. MySQL is used to store sudy data.
 Server configuration is accesseble throw text configuration file.
 
 ### Build and run instraction ###################################################
+Firstly build and install opencv 3.1 or simply emerge it from repos.
+Exectly 3.1 version is recomended, but it is tested on legacy 2.4 version
+The head of Makefile containce configuration lines. Edit them if necessary.
+Do not foget to export custom location of OpenCV to PATH
+
+~ $ export LD_LIBRARY_PATH=./opencv/lib/
+### Realese build
+~/ProjDir $ make clean && make build
+### Integrasion and module tests
 ~/ProjDir $ make clean
 ~/ProjDir $ make DEBUG=1 OUTFILES=1 test
-~/ProjDir $ make build
-~/ProjDir $ ./bin/server --config ./server.conf
+### Dry run options
+~/ProjDir $ mysql -u root -p < clean.sql
+~/ProjDir $ mysql -u root -p < schema.sql
+~/ProjDir $ bin/server --study camera1/map.png --config server.conf
+~/ProjDir $ bin/server --config server.conf
+~/ProjDir $ bin/server --seed-for 23 --config server.conf
 
 ### System reqirements ##########################################################
 - 4x Intel Core i5
@@ -16,15 +29,15 @@ Server configuration is accesseble throw text configuration file.
 
 ### Software Dependency #########################################################
 - GNU/Linux OS is recomended
-- git, make, g++ 4.8, OpenCV 2.4, MySQL 5.5
+- git, make, g++ (4.7 - 4.9)
+- OpenCV (2.4 - 3.1) the latest is recomended
+- MySQL (5.5, 5.6)
 
 ### List of Feachers (version 0.9) ##############################################
-- hardcoded camera-to-layout mapping
 - one camera support
 - 80 pixels per object resolution
 - real time object clustering with 1 sec lag
 - automation parking monitoring
-- alarm manager (for admin)
 
 ### Helpful shell commands for developers #######################################
 // number of code lines and project tree

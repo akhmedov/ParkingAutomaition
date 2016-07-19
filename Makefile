@@ -2,10 +2,11 @@ CXX = g++
 CXX_FLAGS=$(if ${DEBUG},-Wall -DDEBUG,) $(if ${OUTFILES}, -DOUTFILES,) 
 CXX_STD=-std=c++11
 
-OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
-OPENCV_LIBS=`pkg-config --libs opencv`
+#OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
+OPENCV_FLAGS=`pkg-config --cflags ./opencv/lib/pkgconfig/opencv.pc`
+#OPENCV_LIBS=`pkg-config --libs opencv`
+OPENCV_LIBS=-L/home/rolan/projects/ParkingAutomaition/opencv/lib -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core
 
-# MYSQL_FLAGS=-I /usr/include/mysql
 MYSQL_FLAGS=`mysql_config --cflags`
 MYSQL_LIBS =`mysql_config --libs`
 
@@ -36,7 +37,7 @@ list:
 test: $(TEST_EXECS)
 
 build: $(OBJECTS)
-	$(CXX) $(CXX_STD) $(CXX_FLAGS) -o bin/server $? $(OPENCV_LIBS) $(MYSQL_LIBS)
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) $(OPENCV_FLAGS) -o bin/server $? $(OPENCV_LIBS) $(MYSQL_LIBS)
 
 clean:
 	@rm -fr bin/
@@ -47,7 +48,7 @@ clean:
 bin/%.o: %.cpp
 	@echo Build $@
 	@mkdir -p $(@D)
-	$(CXX) $(CXX_STD) $(CXX_FLAGS) -c $< -o $@
+	$(CXX) $(CXX_STD) $(CXX_FLAGS) $(OPENCV_FLAGS) -c $< -o $@
 
 bin/clust/%.o: clust/%.cpp clust/*.h
 	@echo Build $@
@@ -74,6 +75,6 @@ bin/parking/%.o: parking/%.cpp parking/*.h
 $(TEST_EXECS): bin/%:test/%.cpp
 	@echo Build $@
 	@mkdir -p $(@D)
-	@$(CXX) $(CXX_STD) $(CXX_FLAGS) $(OPENCV_FLAGS) $(MYSQL_FLAGS) $^ $(OPENCV_LIBS) -o $@
+	@$(CXX) $(CXX_STD) $(CXX_FLAGS) $(OPENCV_FLAGS) $(MYSQL_FLAGS) $^ $(OPENCV_LIBS) $(MYSQL_LIBS) -o $@
 
 $(TEST_EXECS): $(filter-out $(MAIN_OBJS),$(OBJECTS))
