@@ -10,7 +10,7 @@ Exectly 3.1 version is recomended, but it is tested on legacy 2.4 version
 The head of Makefile containce configuration lines. Edit them if necessary.
 Do not foget to export custom location of OpenCV to PATH
 
-~ $ export LD_LIBRARY_PATH=./opencv/lib/
+~/ProjDir $ export LD_LIBRARY_PATH=./opencv/lib/
 ### Realese build
 ~/ProjDir $ make clean && make build
 ### Integrasion and module tests

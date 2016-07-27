@@ -2,3 +2,10 @@
 /out
 *.o
 .project
+
+# tex life
+*.aux
+*.log
+*.toc
+*.synctex.gz
+*.pdf

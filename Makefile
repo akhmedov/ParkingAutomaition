@@ -2,10 +2,14 @@ CXX = g++
 CXX_FLAGS=$(if ${DEBUG},-Wall -DDEBUG,) $(if ${OUTFILES}, -DOUTFILES,) 
 CXX_STD=-std=c++11
 
-#OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
+# OPENCV_FLAGS=`pkg-config --cflags opencv` -I /usr/local/include/opencv2
 OPENCV_FLAGS=`pkg-config --cflags ./opencv/lib/pkgconfig/opencv.pc`
-#OPENCV_LIBS=`pkg-config --libs opencv`
-OPENCV_LIBS=-L/home/rolan/projects/ParkingAutomaition/opencv/lib -lopencv_shape -lopencv_stitching -lopencv_objdetect -lopencv_superres -lopencv_videostab -lopencv_calib3d -lopencv_features2d -lopencv_highgui -lopencv_videoio -lopencv_imgcodecs -lopencv_video -lopencv_photo -lopencv_ml -lopencv_imgproc -lopencv_flann -lopencv_core
+
+# OpenCV pkg-config BUG: deprecated dependency required
+# OPENCV_LIBS=`pkg-config --libs opencv`
+OPENCV_LIBS=-L/home/rolan/projects/ParkingAutomaition/opencv/lib \
+-lopencv_highgui -lopencv_videoio -lopencv_imgcodecs \
+-lopencv_imgproc -lopencv_core
 
 MYSQL_FLAGS=`mysql_config --cflags`
 MYSQL_LIBS =`mysql_config --libs`
@@ -32,7 +36,8 @@ try_render:
 	bin/maskRenderingIT screenshot/map.png screenshot/2016-05-18_12\:09\:15.png
 
 list:
-	find . -name '*.cpp' -o -name '*.h' -o -name '*.sql' -o -name 'Makefile' | xargs wc -l
+	@find . -name '*.cpp' -o -name '*.h' -o -name '*.sql' -o -name '*.tex' \
+	-o -name 'Makefile' | sed -e "/opencv/d" | xargs wc -l
 
 test: $(TEST_EXECS)
 

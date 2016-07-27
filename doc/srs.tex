@@ -1,0 +1,87 @@
+\documentclass[12pt, a4paper, titlepage]{article}
+
+\title{Software Requirements Specification \\ 
+\large ParkingAutomation Server}
+\author{Rolan Akhmedov \\ GlobalLogic Ukraine, Inc. \\ rolan.kharkiv@gmail.com }
+	% use \and to add one more auther
+	% \and AUTHER_NAME \\ AUTHER_COMP \\ AUTHER_CONTACT }
+\date{\today} 
+% use \date{25.12.00} to set specific date
+
+\usepackage{indentfirst} % intend first passage in the section
+
+\begin{document}
+	\maketitle
+	
+	% \begin{abstract} \end{abstract}
+	
+	\section{Introduction}
+		ParkingAutomation is a server software for traffic monitoring on a parking area.
+		It contains computer vision server and a client (server utilities). 
+		The server manages life parking information form IP cameras;
+		The utilities impact allows to control a recognition process and the output.
+		The output management is relied on web server but the utilities provides
+		an access to a database entity and video strimming threads.
+		\par 
+		Client-server communication is implemented though a IPC socket schema.
+		Server performs traffic and system log so any log event can be sent like a
+		notification through MQ, IM, SIP, e-mail, etc. 
+		Notification handling is not coved by the server scope.
+
+	\section{Overall description}
+		\subsection{Product perspective}
+			\begin{itemize}
+				\item System Interfaces \\ Parking Object Interface Description
+				\item User and Communication Interfaces \\ CLI, text output
+				\item Software interfaces \\ rtfs:// stream
+				\item Memory Constraints \\ Min RAM \& Min Disk Space Value
+			\end{itemize}
+		\subsection{Product functions}
+			\begin{enumerate}
+				\item Spot status recognition
+				\begin{enumerate}
+					\item status update one time the minute
+					\item \ldots
+				\end{enumerate}
+				\item Traffic monitoring
+				\begin{enumerate}
+					\item \ldots
+				\end{enumerate}	
+				\item Accident notification
+				\begin{enumerate}
+					\item \ldots
+				\end{enumerate}	 
+				\item System control
+				\begin{enumerate}
+					\item \ldots
+				\end{enumerate}	
+			\end{enumerate}
+		\subsection{Constraints, assumptions and dependencies}
+			
+		
+	\section{Specific requirements}
+		\subsection{External interface requirements}
+			SQL Database
+			
+		\subsection{Functional requirements}
+			Does it different form Product functions?
+			
+		\subsection{Performance requirements}
+			Is duplication allowed?
+			
+		\subsection{Design constraints}
+			\begin{itemize}
+				\item Must allow to add new recognition method
+				\item \ldots
+			\end{itemize}
+			
+		\subsection{Software System attributes}
+			\begin{itemize}
+				\item Reliability \\ Hardware exaction handling is required
+				\item Security \\ Config contains camera access
+				\item Maintainability \\ Makefile
+				\item Portability \\ Windows, Linux
+			\end{itemize}
+
+
+\end{document}
